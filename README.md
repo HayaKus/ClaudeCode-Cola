@@ -13,22 +13,61 @@
 
 ## 安装和运行
 
-### 方法1：使用启动脚本（推荐）
+### 首次启动
+
+第一次使用时需要安装依赖：
 
 ```bash
-cd /Users/haya/Code/claude-monitor
+# 1. 进入项目目录
+cd /Users/haya/Code/ClaudeCode-Cola
+
+# 2. 创建虚拟环境（可选但推荐）
+python3 -m venv venv
+source venv/bin/activate
+
+# 3. 安装依赖
+pip3 install -r requirements.txt
+
+# 4. 运行监控器
+python3 claude_monitor.py
+```
+
+### 日常启动
+
+#### 方法1：使用启动脚本（推荐）
+
+```bash
+cd /Users/haya/Code/ClaudeCode-Cola
 ./run.sh
 ```
 
-### 方法2：手动运行
+启动脚本会自动：
+- 激活虚拟环境
+- 安装/更新依赖
+- 启动监控程序
+
+#### 方法2：手动启动
 
 ```bash
-# 安装依赖
-pip3 install -r requirements.txt
-
-# 运行监控器
+cd /Users/haya/Code/ClaudeCode-Cola
+source venv/bin/activate  # 如果使用虚拟环境
 python3 claude_monitor.py
 ```
+
+### 关闭程序
+
+有以下几种方式关闭监控程序：
+
+1. **正常关闭**（推荐）：按 `Ctrl+C`
+   - 程序会优雅地关闭所有监控器和清理资源
+
+2. **强制关闭**：连续按两次 `Ctrl+C`
+   - 如果程序没有响应，可以强制退出
+
+3. **通过活动监视器**：
+   - 打开Mac的活动监视器
+   - 搜索 `python3` 或 `claude_monitor`
+   - 选中进程并点击停止按钮
 
 ## 界面说明
 
