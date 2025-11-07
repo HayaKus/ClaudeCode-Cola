@@ -1,17 +1,16 @@
-# Claude Code Manager ,0pn
-~/.claude-code-manager/
+# Claude Code Manager 本地数据
+.claude-code-manager/
 *.claude-code-manager
 
-# �pn���
-sessions.json
-sessions-*.json
-logs/
-*.log
+# 会话数据和日志（在项目目录内）
+.claude-code-manager/sessions.json
+.claude-code-manager/sessions-*.json
+.claude-code-manager/logs/
+.claude-code-manager/*.log
 
-# �K
-�
-assistant/
-context.json
+# 助手上下文
+.claude-code-manager/assistant/
+.claude-code-manager/context.json
 
 # Python
 __pycache__/
