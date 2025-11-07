@@ -1,0 +1,70 @@
+# Claude Code Manager ,0pn
+~/.claude-code-manager/
+*.claude-code-manager
+
+# ÝpnŒå×
+sessions.json
+sessions-*.json
+logs/
+*.log
+
+# ©K
+‡
+assistant/
+context.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Config files with personal data
+config.local.json
+*.local
+
+# Backup files
+*.bak
+*.backup
+*-backup.json
+
+# Temporary files
+tmp/
+temp/
+.tmp/
