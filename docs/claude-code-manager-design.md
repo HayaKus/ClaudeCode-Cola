@@ -1,8 +1,10 @@
-# Claude Code Manager 设计文档
+# Claude Code Manager (ClaudeCode-Cola) 设计文档
 
 ## 项目概述
 
-Claude Code Manager 是一个专为 macOS + iTerm2 环境设计的终端工具，用于集中管理和监控所有 Claude Code 会话。它解决了在多任务场景下管理多个独立 Claude Code 会话的困难，特别是在意外关闭终端后难以找回特定会话的问题。
+Claude Code Manager (ClaudeCode-Cola) 是一个专为 macOS + iTerm2 环境设计的终端工具，用于集中管理和监控所有 Claude Code 会话。项目名称 ClaudeCode-Cola 是 Coca-Cola 的谐音，寓意像可乐一样让人精神焕发、提高工作效率。
+
+它解决了在多任务场景下管理多个独立 Claude Code 会话的困难，特别是在意外关闭终端后难以找回特定会话的问题。
 
 ## 核心需求
 
@@ -409,25 +411,25 @@ end tell
 #### 7.1 命令行别名
 ```bash
 # ~/.zshrc 配置
-alias ccm="/usr/local/bin/claude-code-manager"
-alias ccm-daemon="/usr/local/bin/claude-code-manager --daemon"
-alias ccm-status="/usr/local/bin/claude-code-manager --status"
-alias ccm-stop="/usr/local/bin/claude-code-manager --stop"
+alias cccl="/usr/local/bin/claude-code-cola"
+alias cccl-daemon="/usr/local/bin/claude-code-cola --daemon"
+alias cccl-status="/usr/local/bin/claude-code-cola --status"
+alias cccl-stop="/usr/local/bin/claude-code-cola --stop"
 ```
 
 #### 7.2 自启动配置
 ```xml
-<!-- ~/Library/LaunchAgents/com.claude-code-manager.plist -->
+<!-- ~/Library/LaunchAgents/com.claudecode.cola.plist -->
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.claude-code-manager</string>
+    <string>com.claudecode.cola</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/local/bin/claude-code-manager</string>
+        <string>/usr/local/bin/claude-code-cola</string>
         <string>--daemon</string>
     </array>
     <key>RunAtLoad</key>
@@ -472,34 +474,149 @@ alias ccm-stop="/usr/local/bin/claude-code-manager --stop"
 ## 安装与使用
 
 ### 安装步骤
+
+#### 方法一：自动安装（推荐）
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/yourusername/claude-code-manager.git
-cd claude-code-manager
+git clone https://github.com/yourusername/ClaudeCode-Cola.git
+cd ClaudeCode-Cola
 
-# 2. 安装依赖
+# 2. 运行安装脚本
+./install.sh
+
+# 安装脚本会自动：
+# - 创建虚拟环境
+# - 安装 Python 依赖
+# - 创建必要的目录结构
+# - 安装可执行文件到 /usr/local/bin/
+# - 配置命令别名（cccl）
+# - 询问是否设置开机自启动
+```
+
+#### 方法二：手动安装
+```bash
+# 1. 克隆仓库
+git clone https://github.com/yourusername/ClaudeCode-Cola.git
+cd ClaudeCode-Cola
+
+# 2. 创建虚拟环境
+python3 -m venv venv
+source venv/bin/activate
+
+# 3. 安装依赖
 pip install -r requirements.txt
 
-# 3. 安装到系统
-python setup.py install
+# 4. 创建数据目录
+mkdir -p ~/.claude-code-manager/logs
+mkdir -p ~/.claude-code-manager/assistant
 
-# 4. 配置自启动（可选）
-ccm --install-daemon
+# 5. 安装到系统
+sudo python setup.py install
+
+# 6. 创建符号链接
+sudo ln -s /usr/local/bin/claude-code-manager /usr/local/bin/claude-code-cola
+sudo ln -s /usr/local/bin/claude-code-cola /usr/local/bin/cccl
+
+# 7. 添加别名到 shell 配置（~/.zshrc 或 ~/.bashrc）
+echo 'alias cccl="/usr/local/bin/claude-code-cola"' >> ~/.zshrc
+echo 'alias cccl-daemon="/usr/local/bin/claude-code-cola --daemon"' >> ~/.zshrc
+echo 'alias cccl-status="/usr/local/bin/claude-code-cola --status"' >> ~/.zshrc
+echo 'alias cccl-stop="/usr/local/bin/claude-code-cola --stop"' >> ~/.zshrc
+source ~/.zshrc
+
+# 8. 设置开机自启动（可选）
+cp com.claudecode.cola.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.claudecode.cola.plist
+```
+
+### 卸载步骤
+
+#### 方法一：自动卸载（推荐）
+```bash
+# 在项目目录中运行
+./uninstall.sh
+
+# 卸载脚本会自动：
+# - 停止守护进程
+# - 移除 LaunchAgent 自启动
+# - 删除可执行文件
+# - 询问是否删除用户数据
+# - 移除命令别名
+```
+
+#### 方法二：手动卸载
+```bash
+# 1. 停止守护进程
+cccl --stop
+
+# 2. 移除自启动
+launchctl unload ~/Library/LaunchAgents/com.claudecode.cola.plist
+rm ~/Library/LaunchAgents/com.claudecode.cola.plist
+
+# 3. 卸载 Python 包
+pip uninstall claude-code-cola
+
+# 4. 删除可执行文件
+sudo rm /usr/local/bin/claude-code-cola
+sudo rm /usr/local/bin/claude-code-manager
+sudo rm /usr/local/bin/cccl
+
+# 5. 删除用户数据（可选，谨慎操作）
+# 警告：这会删除所有会话历史和日志
+rm -rf ~/.claude-code-manager
+
+# 6. 移除 shell 别名
+# 编辑 ~/.zshrc 或 ~/.bashrc，删除以下行：
+# alias cccl="/usr/local/bin/claude-code-cola"
+# alias cccl-daemon="/usr/local/bin/claude-code-cola --daemon"
+# alias cccl-status="/usr/local/bin/claude-code-cola --status"
+# alias cccl-stop="/usr/local/bin/claude-code-cola --stop"
+
+# 7. 重新加载 shell 配置
+source ~/.zshrc
 ```
 
 ### 基本使用
 ```bash
-# 启动 Manager
-ccm
+# 启动 Manager（交互模式）
+cccl
+
+# 启动守护进程（后台运行）
+cccl --daemon
 
 # 查看守护进程状态
-ccm --status
+cccl --status
 
 # 停止守护进程
-ccm --stop
+cccl --stop
+
+# 查看版本
+cccl --version
 
 # 查看帮助
-ccm --help
+cccl --help
+
+# 备份会话数据
+cccl --backup
+
+# 恢复会话数据
+cccl --restore <backup-file>
+
+# 清理过期数据（30天以上的日志）
+cccl --clean
+```
+
+### 首次使用配置
+```bash
+# 首次运行时会提示配置
+cccl --setup
+
+# 配置项包括：
+# - Claude API Key（用于助手功能）
+# - 默认工作目录
+# - 日志保留天数
+# - 是否开启自动刷新
+# - 刷新间隔（秒）
 ```
 
 ## 未来扩展
