@@ -1,4 +1,5 @@
 # Claude Code Manager 本地数据
+# 重要：包含 API Key 等敏感信息，绝对不要上传！
 .claude-code-manager/
 *.claude-code-manager
 
