@@ -409,9 +409,79 @@ cd ClaudeCode-Cola
 - 设置开机自启动（可选）
 
 #### 手动安装
-详见完整文档...
+```bash
+# 1. 克隆仓库
+git clone https://github.com/yourusername/ClaudeCode-Cola.git
+cd ClaudeCode-Cola
 
-### 5.3 首次配置
+# 2. 创建虚拟环境
+python3 -m venv venv
+source venv/bin/activate
+
+# 3. 安装依赖
+pip install -r requirements.txt
+
+# 4. 创建数据目录
+mkdir -p ~/Code/ClaudeCode-Cola/.claude-code-manager/{logs,assistant}
+
+# 5. 安装到系统
+sudo python setup.py install
+
+# 6. 创建命令别名
+sudo ln -s /usr/local/bin/claude-code-manager /usr/local/bin/cccl
+
+# 7. 添加到 shell 配置
+echo 'alias cccl="/usr/local/bin/claude-code-manager"' >> ~/.zshrc
+source ~/.zshrc
+
+# 8. 设置开机自启动（可选）
+cp com.claudecode.cola.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.claudecode.cola.plist
+```
+
+### 5.3 卸载步骤
+
+#### 自动卸载（推荐）
+```bash
+# 在项目目录中运行
+./uninstall.sh
+```
+
+卸载脚本会自动完成：
+- 停止守护进程
+- 移除 LaunchAgent 自启动
+- 删除可执行文件
+- 询问是否删除用户数据
+- 移除命令别名
+
+#### 手动卸载
+```bash
+# 1. 停止守护进程
+cccl --stop
+
+# 2. 移除自启动
+launchctl unload ~/Library/LaunchAgents/com.claudecode.cola.plist
+rm ~/Library/LaunchAgents/com.claudecode.cola.plist
+
+# 3. 卸载 Python 包
+pip uninstall claude-code-manager
+
+# 4. 删除可执行文件
+sudo rm /usr/local/bin/claude-code-manager
+sudo rm /usr/local/bin/cccl
+
+# 5. 删除用户数据（可选，谨慎操作）
+# 警告：这会删除所有会话历史、配置和日志
+rm -rf ~/Code/ClaudeCode-Cola/.claude-code-manager
+
+# 6. 移除 shell 别名
+# 编辑 ~/.zshrc 或 ~/.bashrc，删除相关别名行
+
+# 7. 重新加载 shell 配置
+source ~/.zshrc
+```
+
+### 5.4 首次配置
 ```bash
 # 运行配置向导
 cccl --setup
