@@ -1,7 +1,7 @@
 #!/bin/bash
-# Claude Monitor 启动脚本
+# ClaudeCode-Cola 启动脚本
 
-echo "🚀 启动 Claude Code 监控器..."
+echo "🥤 启动 ClaudeCode-Cola..."
 
 # 检查Python版本
 if ! python3 --version &> /dev/null; then
@@ -22,6 +22,6 @@ source venv/bin/activate
 echo "📦 安装依赖包..."
 pip install -r requirements.txt -q
 
-# 运行监控器
-echo "🎯 启动监控程序..."
-python3 claude_monitor.py
+# 运行 ClaudeCode-Cola
+echo "🎯 启动程序..."
+python3 claudecode_cola.py
