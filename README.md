@@ -39,10 +39,7 @@ Coca-Cola的好兄弟！一个用于实时监控Mac上所有Claude Code会话和
 启动脚本会自动处理所有设置：
 
 ```bash
-# 1. 进入项目目录
-cd $你clone项目的位置/ClaudeCode-Cola
-
-# 2. 运行启动脚本
+# 在项目目录下运行启动脚本
 ./run.sh
 ```
 
