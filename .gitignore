@@ -1,0 +1,85 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp
+.TemporaryItems
+*.bak
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Processed files
+*.pyc
+*.pyo
+*~
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Configuration and sensitive files
+.config/
+
+# Claude Code specific - ignore only user-specific files, not the whole directory
+.claude/settings.local.json
+.claude/projects/
+.claude/cache/
+
+# Large media files (unless intentionally versioned)
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.svg
+*.ico
+
+# Specific images that are part of documentation (intentionally versioned)
+!image.png
+!image-1.png
+
+# Shell scripts temporary files
+*.swp
+*.swo
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python-specific additions
+coverage.xml
+*.coverage
+.pytest_cache/
+.covers/
+mypy_cache/
