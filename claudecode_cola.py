@@ -31,6 +31,9 @@ from rich.text import Text
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.syntax import Syntax
 import time
+import threading
+import sys
+import select
 
 
 # 白色背景主题配色
@@ -160,6 +163,10 @@ class ClaudeMonitor:
         self.observer = Observer()
         self.file_positions = {}  # 记录每个文件的读取位置
         self.running = True
+        self.input_queue = []  # 用于存储用户输入
+        self.input_mode = False  # 是否处于输入模式
+        self.input_buffer = ""  # 输入缓冲区
+        self.status_message = ""  # 状态消息
 
         # Claude项目根目录
         self.claude_root = Path.home() / '.claude' / 'projects'
@@ -176,6 +183,9 @@ class ClaudeMonitor:
 
         # 启动进程监控
         asyncio.create_task(self.monitor_processes())
+
+        # 启动键盘输入监听
+        self.start_input_listener()
 
         # 启动UI
         await self.run_ui()
@@ -390,6 +400,124 @@ class ClaudeMonitor:
         self.observer.start()
         self.console.print(f"[{THEME['success']}]👁️  文件监控已启动[/]")
 
+    def start_input_listener(self):
+        """启动键盘输入监听线程"""
+        def input_thread():
+            import termios
+            import tty
+
+            # 检查是否在终端环境中运行
+            if not sys.stdin.isatty():
+                self.console.print(f"[{THEME['warning']}]⚠️  非终端环境,键盘监听已禁用[/]")
+                return
+
+            try:
+                # 保存原始终端设置
+                old_settings = termios.tcgetattr(sys.stdin)
+            except termios.error:
+                self.console.print(f"[{THEME['warning']}]⚠️  无法访问终端,键盘监听已禁用[/]")
+                return
+
+            try:
+                # 设置终端为原始模式
+                tty.setcbreak(sys.stdin.fileno())
+
+                while self.running:
+                    # 检查是否有输入可用
+                    if select.select([sys.stdin], [], [], 0.1)[0]:
+                        char = sys.stdin.read(1)
+
+                        if not self.input_mode:
+                            # 非输入模式,检查是否是命令触发键
+                            if char == 'p':
+                                self.input_mode = True
+                                self.input_buffer = "p "
+                                self.status_message = "输入会话ID进行标记 (按 Enter 确认, Esc 取消):"
+                            elif char == 'u':
+                                self.input_mode = True
+                                self.input_buffer = "u "
+                                self.status_message = "输入会话ID取消标记 (按 Enter 确认, Esc 取消):"
+                        else:
+                            # 输入模式
+                            if char == '\n' or char == '\r':
+                                # 确认输入
+                                self.process_input(self.input_buffer)
+                                self.input_mode = False
+                                self.input_buffer = ""
+                            elif char == '\x1b':  # ESC键
+                                # 取消输入
+                                self.input_mode = False
+                                self.input_buffer = ""
+                                self.status_message = "已取消操作"
+                                self._status_message_time = time.time()
+                            elif char == '\x7f':  # 退格键
+                                if len(self.input_buffer) > 2:  # 保留 "p " 或 "u "
+                                    self.input_buffer = self.input_buffer[:-1]
+                            elif char.isprintable():
+                                self.input_buffer += char
+            finally:
+                # 恢复终端设置
+                try:
+                    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+                except:
+                    pass
+
+        # 启动输入线程
+        thread = threading.Thread(target=input_thread, daemon=True)
+        thread.start()
+
+        # 如果在终端环境,显示启动信息
+        if sys.stdin.isatty():
+            self.console.print(f"[{THEME['success']}]⌨️  键盘监听已启动[/]")
+
+    def process_input(self, input_text):
+        """处理用户输入"""
+        from claudecode_cola_api import pin_session, unpin_session, save_pinned_sessions, load_pinned_sessions
+
+        parts = input_text.strip().split()
+        if len(parts) < 2:
+            self.status_message = "❌ 输入格式错误"
+            self._status_message_time = time.time()
+            return
+
+        command = parts[0]
+        session_id = parts[1]
+
+        if command == 'p':
+            # 标记会话
+            if session_id in self.sessions:
+                session = self.sessions[session_id]
+                if not session.is_pinned:
+                    session.is_pinned = True
+                    # 保存到配置文件
+                    pinned_sessions = load_pinned_sessions()
+                    pinned_sessions.add(session_id)
+                    save_pinned_sessions(pinned_sessions)
+                    self.status_message = f"✅ 已标记会话: {session.project_name}"
+                else:
+                    self.status_message = f"⚠️  会话已被标记: {session.project_name}"
+            else:
+                self.status_message = f"❌ 会话 {session_id} 不存在"
+
+        elif command == 'u':
+            # 取消标记会话
+            if session_id in self.sessions:
+                session = self.sessions[session_id]
+                if session.is_pinned:
+                    session.is_pinned = False
+                    # 从配置文件移除
+                    pinned_sessions = load_pinned_sessions()
+                    pinned_sessions.discard(session_id)
+                    save_pinned_sessions(pinned_sessions)
+                    self.status_message = f"✅ 已取消标记会话: {session.project_name}"
+                else:
+                    self.status_message = f"⚠️  会话未被标记: {session.project_name}"
+            else:
+                self.status_message = f"❌ 会话 {session_id} 不存在"
+
+        # 设置状态消息时间戳
+        self._status_message_time = time.time()
+
     async def monitor_processes(self):
         """监控Claude进程"""
         while self.running:
@@ -473,11 +601,33 @@ class ClaudeMonitor:
         layout["main"].update(main_layout)
 
         # 页脚
-        footer_text = Text(
-            f"进程: {len(self.claude_processes)} | 标记: p <会话ID> | 取消标记: u <会话ID> | 按 Ctrl+C 退出",
-            style=THEME['primary'],
-            justify="center"
-        )
+        if self.input_mode:
+            # 输入模式：显示输入提示和缓冲区
+            footer_text = Text(
+                f"{self.status_message} {self.input_buffer}▊",
+                style=THEME['warning'],
+                justify="left"
+            )
+        elif self.status_message:
+            # 显示状态消息
+            footer_text = Text(
+                f"进程: {len(self.claude_processes)} | {self.status_message} | 按 p 标记, u 取消标记 | Ctrl+C 退出",
+                style=THEME['primary'],
+                justify="center"
+            )
+            # 清空状态消息（3秒后）
+            if not hasattr(self, '_status_message_time'):
+                self._status_message_time = time.time()
+            elif time.time() - self._status_message_time > 3:
+                self.status_message = ""
+                delattr(self, '_status_message_time')
+        else:
+            # 默认状态
+            footer_text = Text(
+                f"进程: {len(self.claude_processes)} | 按 p 标记会话, u 取消标记 | Ctrl+C 退出",
+                style=THEME['primary'],
+                justify="center"
+            )
         layout["footer"].update(Panel(footer_text, style=THEME['primary']))
 
         return layout
