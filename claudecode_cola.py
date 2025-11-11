@@ -425,36 +425,62 @@ class ClaudeMonitor:
                 while self.running:
                     # 检查是否有输入可用
                     if select.select([sys.stdin], [], [], 0.1)[0]:
+                        # 读取第一个字符
                         char = sys.stdin.read(1)
 
-                        if not self.input_mode:
-                            # 非输入模式,检查是否是命令触发键
-                            if char == 'p':
-                                self.input_mode = True
-                                self.input_buffer = "p "
-                                self.status_message = "输入会话ID进行标记 (按 Enter 确认, Esc 取消):"
-                            elif char == 'u':
-                                self.input_mode = True
-                                self.input_buffer = "u "
-                                self.status_message = "输入会话ID取消标记 (按 Enter 确认, Esc 取消):"
-                        else:
-                            # 输入模式
-                            if char == '\n' or char == '\r':
-                                # 确认输入
-                                self.process_input(self.input_buffer)
-                                self.input_mode = False
-                                self.input_buffer = ""
-                            elif char == '\x1b':  # ESC键
-                                # 取消输入
-                                self.input_mode = False
-                                self.input_buffer = ""
-                                self.status_message = "已取消操作"
-                                self._status_message_time = time.time()
-                            elif char == '\x7f':  # 退格键
-                                if len(self.input_buffer) > 2:  # 保留 "p " 或 "u "
-                                    self.input_buffer = self.input_buffer[:-1]
-                            elif char.isprintable():
-                                self.input_buffer += char
+                        # 如果还有更多字符可读(处理粘贴),继续读取
+                        import fcntl
+                        import os
+
+                        # 设置为非阻塞模式临时读取剩余字符
+                        fd = sys.stdin.fileno()
+                        flags = fcntl.fcntl(fd, fcntl.F_GETFL)
+                        fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
+
+                        try:
+                            while True:
+                                try:
+                                    next_char = sys.stdin.read(1)
+                                    if next_char:
+                                        char += next_char
+                                    else:
+                                        break
+                                except IOError:
+                                    break
+                        finally:
+                            # 恢复阻塞模式
+                            fcntl.fcntl(fd, fcntl.F_SETFL, flags)
+
+                        # 处理所有读取到的字符
+                        for c in char:
+                            if not self.input_mode:
+                                # 非输入模式,检查是否是命令触发键
+                                if c == 'p':
+                                    self.input_mode = True
+                                    self.input_buffer = "p "
+                                    self.status_message = "输入会话ID进行标记 (按 Enter 确认, Esc 取消):"
+                                elif c == 'u':
+                                    self.input_mode = True
+                                    self.input_buffer = "u "
+                                    self.status_message = "输入会话ID取消标记 (按 Enter 确认, Esc 取消):"
+                            else:
+                                # 输入模式
+                                if c == '\n' or c == '\r':
+                                    # 确认输入
+                                    self.process_input(self.input_buffer)
+                                    self.input_mode = False
+                                    self.input_buffer = ""
+                                elif c == '\x1b':  # ESC键
+                                    # 取消输入
+                                    self.input_mode = False
+                                    self.input_buffer = ""
+                                    self.status_message = "已取消操作"
+                                    self._status_message_time = time.time()
+                                elif c == '\x7f':  # 退格键
+                                    if len(self.input_buffer) > 2:  # 保留 "p " 或 "u "
+                                        self.input_buffer = self.input_buffer[:-1]
+                                elif c.isprintable():
+                                    self.input_buffer += c
             finally:
                 # 恢复终端设置
                 try:
@@ -603,10 +629,17 @@ class ClaudeMonitor:
         # 页脚
         if self.input_mode:
             # 输入模式：显示输入提示和缓冲区
+            # 如果输入太长,只显示最后的部分
+            display_buffer = self.input_buffer
+            max_display_len = 80  # 最多显示80个字符
+            if len(display_buffer) > max_display_len:
+                display_buffer = "..." + display_buffer[-(max_display_len-3):]
+
             footer_text = Text(
-                f"{self.status_message} {self.input_buffer}▊",
+                f"{self.status_message} {display_buffer}▊",
                 style=THEME['warning'],
-                justify="left"
+                justify="left",
+                overflow="ignore"  # 不截断文本
             )
         elif self.status_message:
             # 显示状态消息
@@ -749,7 +782,7 @@ class ClaudeMonitor:
         """运行UI循环"""
         with Live(
             self.create_dashboard(),
-            refresh_per_second=2,
+            refresh_per_second=4,  # 提高刷新率以更好地显示输入
             console=self.console
         ) as live:
             try:
