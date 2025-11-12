@@ -54,10 +54,11 @@ Thumbs.db
 *.tiff
 *.svg
 *.ico
+*.png
 
 # Specific images that are part of documentation (intentionally versioned)
-!image.png
-!image-1.png
+!large.jpg
+!mini.jpg
 
 # Shell scripts temporary files
 *.swp
