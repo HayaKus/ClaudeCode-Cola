@@ -694,13 +694,15 @@ class ClaudeMonitor:
 
         # 只显示前20个会话
         for session in sorted_sessions[:20]:
-            # 状态图标：标记的会话显示📌，活跃的会话显示🟢
+            # 状态图标：图钉=已标记，绿色=活跃中，黄色=标记但不活跃(需要关注)
             if session.is_pinned and session.is_active:
-                status_icon = "📌🟢"  # 既是标记又是活跃
-            elif session.is_pinned:
-                status_icon = "📌"   # 只是标记
+                status_icon = "📌🟢"  # 标记且活跃
+            elif session.is_pinned and not session.is_active:
+                status_icon = "📌🟡"  # 标记但不活跃，需要关注
+            elif session.is_active:
+                status_icon = "🟢"  # 活跃但未标记
             else:
-                status_icon = "🟢"   # 只是活跃
+                status_icon = ""    # 未标记且不活跃
 
             # TodoWrite进度
             if session.todos:
