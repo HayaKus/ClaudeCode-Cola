@@ -803,14 +803,12 @@ class ClaudeMonitor:
                     # 更新UI
                     live.update(self.create_dashboard())
 
-                    # 清理非活跃会话（2分钟内无活动）- 但保留标记的会话
+                    # 清理非活跃会话（2分钟内无活动）
+                    # 注意:标记的会话也需要更新is_active状态，以便正确显示icon颜色
                     current_time = datetime.now()
                     for session_id in list(self.active_sessions):
                         if session_id in self.sessions:
                             session = self.sessions[session_id]
-                            # 对于标记的会话，不改变其活跃状态
-                            if session.is_pinned:
-                                continue
                             try:
                                 file_stat = Path(session.file_path).stat()
                                 file_mtime = datetime.fromtimestamp(file_stat.st_mtime)
@@ -840,9 +838,9 @@ class ClaudeMonitor:
                                         session.is_active = True
                                         self.active_sessions.add(session.session_id)
                                 # 如果文件超过2分钟没有修改，标记为非活跃
-                                # 但要保留标记会话的显示状态
+                                # 注意:即使是标记的会话，也要更新is_active状态，以便正确显示icon颜色
                                 else:
-                                    if session.is_active and not session.is_pinned:
+                                    if session.is_active:
                                         session.is_active = False
                                         self.active_sessions.discard(session.session_id)
                             except:
