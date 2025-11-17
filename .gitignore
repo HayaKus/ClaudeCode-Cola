@@ -87,8 +87,10 @@ mypy_cache/
 
 # py2app build files
 build/
-dist/
-*.app
-*.dmg
+dist/*.app
+dist/dmg_temp/
 *.egg-info/
 .eggs/
+
+# Allow DMG files for distribution
+!dist/*.dmg
