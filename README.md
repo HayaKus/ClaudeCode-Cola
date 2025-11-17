@@ -56,35 +56,36 @@ git clone <项目地址>
 
 ## 安装方式
 
-### 方式1：开发模式（推荐用于开发和调试）
+### 方式1：Homebrew Cask（推荐）
+
+```bash
+# 方式1：添加 tap 后安装
+brew tap haya.lhw/claudecode-cola https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola.git
+brew install --cask claudecode-cola
+
+# 方式2：直接从仓库安装
+brew install --cask https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola/-/raw/master/homebrew/claudecode-cola.rb
+```
+
+安装后，应用会出现在"应用程序"文件夹中，可以像其他Mac应用一样启动。
+
+### 方式2：手动下载安装
+
+1. 从仓库下载 [DMG 文件](https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola/-/raw/master/dist/ClaudeCode-Cola-1.0.0.dmg)
+2. 双击打开 DMG
+3. 将 ClaudeCode-Cola.app 拖拽到"应用程序"文件夹
+4. 从启动台或访达启动应用
+
+### 方式3：开发模式（用于开发和调试）
 
 ```bash
 # 克隆项目
-git clone <项目地址>
+git clone https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola.git
 cd ClaudeCode-Cola
 
 # 运行启动脚本
 ./run.sh
 ```
-
-### 方式2：Homebrew Cask（推荐用于日常使用）
-
-```bash
-# 添加 tap
-brew tap your-org/claudecode-cola
-
-# 安装应用
-brew install --cask claudecode-cola
-```
-
-安装后，应用会出现在"应用程序"文件夹中，可以像其他Mac应用一样启动。
-
-### 方式3：手动安装 .app
-
-1. 下载最新的 DMG 文件
-2. 双击打开 DMG
-3. 将 ClaudeCode-Cola.app 拖拽到"应用程序"文件夹
-4. 从启动台或访达启动应用
 
 ## 打包和发布
 
