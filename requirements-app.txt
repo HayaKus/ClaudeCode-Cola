@@ -1,0 +1,7 @@
+# Mac 应用依赖
+PyQt6>=6.6.0
+PyQt6-Qt6>=6.6.0
+watchdog>=3.0.0
+psutil>=5.9.0
+aiofiles>=23.2.0
+python-dateutil>=2.8.0

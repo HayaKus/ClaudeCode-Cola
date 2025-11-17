@@ -84,3 +84,11 @@ coverage.xml
 .pytest_cache/
 .covers/
 mypy_cache/
+
+# py2app build files
+build/
+dist/
+*.app
+*.dmg
+*.egg-info/
+.eggs/
