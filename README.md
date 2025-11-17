@@ -56,43 +56,25 @@ git clone <项目地址>
 
 ## 安装方式
 
-### 方式1：一键安装脚本（推荐，最简单）
+### 方式1：Homebrew Cask（推荐）
 
 ```bash
-# 下载并运行安装脚本
-curl -fsSL https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola/-/raw/master/install.sh | bash
+brew tap HayaKus/claudecode-cola
+brew install --cask claudecode-cola
 ```
-
-安装脚本会自动：
-- 下载最新的 DMG 文件
-- 挂载并安装到应用程序文件夹
-- 清理临时文件
 
 ### 方式2：手动下载安装
 
-1. 从仓库下载 [DMG 文件](https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola/-/raw/master/dist/ClaudeCode-Cola-1.0.0.dmg)
+1. 从 [GitHub Releases](https://github.com/HayaKus/ClaudeCode-Cola/releases) 下载最新的 DMG 文件
 2. 双击打开 DMG
 3. 将 ClaudeCode-Cola.app 拖拽到"应用程序"文件夹
 4. 从启动台或访达启动应用
 
-### 方式3：Homebrew Cask
-
-```bash
-# 添加 tap 并安装
-brew tap haya.lhw/claudecode-cola https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola.git
-brew install --cask claudecode-cola
-```
-
-**说明**：
-- 首次添加 tap 时可能会提示 Git LFS 错误，这是正常的
-- 错误不影响安装，Homebrew 会直接从 URL 下载 DMG 文件
-- 无需安装 Git LFS
-
-### 方式4：开发模式（用于开发和调试）
+### 方式3：开发模式（用于开发和调试）
 
 ```bash
 # 克隆项目
-git clone https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola.git
+git clone https://github.com/HayaKus/ClaudeCode-Cola.git
 cd ClaudeCode-Cola
 
 # 运行启动脚本
