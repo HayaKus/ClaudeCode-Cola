@@ -78,18 +78,15 @@ curl -fsSL https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola/-/raw/master/in
 ### 方式3：Homebrew Cask
 
 ```bash
-# 直接安装（无需 Git LFS）
-brew install --cask https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola/-/raw/master/Casks/claudecode-cola.rb
-```
-
-或者添加 tap 后安装：
-
-```bash
+# 添加 tap 并安装
 brew tap haya.lhw/claudecode-cola https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola.git
 brew install --cask claudecode-cola
 ```
 
-**注意**：如果使用 tap 方式，首次添加 tap 时可能会提示 Git LFS 错误，但这不影响安装。Homebrew 会直接从 URL 下载 DMG 文件，无需 Git LFS。
+**说明**：
+- 首次添加 tap 时可能会提示 Git LFS 错误，这是正常的
+- 错误不影响安装，Homebrew 会直接从 URL 下载 DMG 文件
+- 无需安装 Git LFS
 
 ### 方式4：开发模式（用于开发和调试）
 
