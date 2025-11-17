@@ -75,19 +75,21 @@ curl -fsSL https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola/-/raw/master/in
 3. 将 ClaudeCode-Cola.app 拖拽到"应用程序"文件夹
 4. 从启动台或访达启动应用
 
-### 方式3：Homebrew Cask（需要 Git LFS）
-
-**前置要求**：需要先安装 Git LFS
+### 方式3：Homebrew Cask
 
 ```bash
-# 1. 安装 Git LFS
-brew install git-lfs
-git lfs install
+# 直接安装（无需 Git LFS）
+brew install --cask https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola/-/raw/master/Casks/claudecode-cola.rb
+```
 
-# 2. 添加 tap 并安装
+或者添加 tap 后安装：
+
+```bash
 brew tap haya.lhw/claudecode-cola https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola.git
 brew install --cask claudecode-cola
 ```
+
+**注意**：如果使用 tap 方式，首次添加 tap 时可能会提示 Git LFS 错误，但这不影响安装。Homebrew 会直接从 URL 下载 DMG 文件，无需 Git LFS。
 
 ### 方式4：开发模式（用于开发和调试）
 
