@@ -58,13 +58,16 @@ git clone <项目地址>
 
 ### 方式1：Homebrew Cask（推荐）
 
+**前置要求**：需要先安装 Git LFS（用于下载大文件）
+
 ```bash
-# 方式1：添加 tap 后安装
+# 1. 安装 Git LFS（如果还没安装）
+brew install git-lfs
+git lfs install
+
+# 2. 添加 tap 并安装
 brew tap haya.lhw/claudecode-cola https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola.git
 brew install --cask claudecode-cola
-
-# 方式2：直接从仓库安装
-brew install --cask https://code.alibaba-inc.com/haya.lhw/ClaudeCode-Cola/-/raw/master/homebrew/claudecode-cola.rb
 ```
 
 安装后，应用会出现在"应用程序"文件夹中，可以像其他Mac应用一样启动。
