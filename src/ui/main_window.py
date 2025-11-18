@@ -129,7 +129,9 @@ class MainWindow(QMainWindow):
         title.setStyleSheet("color: white; font-size: 18px; font-weight: 600; background: transparent;")
         layout.addWidget(title)
         
-        # 添加版本号标签
+        layout.addStretch()
+        
+        # 添加版本号标签（移到最右边）
         version = QLabel("v1.0.1")
         version.setStyleSheet("""
             color: white;
@@ -140,8 +142,6 @@ class MainWindow(QMainWindow):
             padding: 4px 12px;
         """)
         layout.addWidget(version)
-        
-        layout.addStretch()
 
         header.setMaximumHeight(52)
         header.setMinimumHeight(52)
