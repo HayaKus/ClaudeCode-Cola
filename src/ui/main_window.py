@@ -129,17 +129,6 @@ class MainWindow(QMainWindow):
         title.setStyleSheet("color: white; font-size: 18px; font-weight: 600; background: transparent;")
         layout.addWidget(title)
         
-        # 添加版本信息
-        version = QLabel("v1.0.0")
-        version.setStyleSheet("""
-            color: rgba(255, 255, 255, 0.9); 
-            font-size: 11px; 
-            background: rgba(255, 255, 255, 0.2);
-            padding: 4px 10px;
-            border-radius: 12px;
-        """)
-        layout.addWidget(version)
-        
         layout.addStretch()
 
         header.setMaximumHeight(52)
