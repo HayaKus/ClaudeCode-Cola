@@ -57,10 +57,27 @@ ClaudeCode-Cola 提供两种使用方式：**Mac GUI 应用版**（推荐）和 
 
 通过 Homebrew Cask 安装的是 **Mac GUI 应用版**，安装后可以从启动台或应用程序文件夹启动。
 
+#### 首次安装
+
 ```bash
 brew tap HayaKus/claudecode-cola
 brew install --cask claudecode-cola
 ```
+
+#### 更新到最新版本
+
+```bash
+# 更新 Homebrew 和 Tap 仓库
+brew update
+
+# 升级 ClaudeCode-Cola 到最新版本
+brew upgrade --cask claudecode-cola
+```
+
+**注意事项：**
+- ✅ 更新时会自动保留你的配置和数据（存储在 `~/.claudecode-cola`）
+- ✅ 更新前会自动关闭正在运行的应用
+- ✅ 更新后可以直接启动新版本，查看标题栏右侧的版本号确认更新成功
 
 ### 开发模式运行（支持 Mac 版和 CLI 版）
 
