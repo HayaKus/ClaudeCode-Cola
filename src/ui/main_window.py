@@ -129,6 +129,18 @@ class MainWindow(QMainWindow):
         title.setStyleSheet("color: white; font-size: 18px; font-weight: 600; background: transparent;")
         layout.addWidget(title)
         
+        # 添加版本号标签
+        version = QLabel("v1.0.1")
+        version.setStyleSheet("""
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 4px 12px;
+        """)
+        layout.addWidget(version)
+        
         layout.addStretch()
 
         header.setMaximumHeight(52)
@@ -680,7 +692,7 @@ class MainWindow(QMainWindow):
             self,
             "关于 ClaudeCode-Cola",
             "ClaudeCode-Cola 🥤\n\n"
-            "版本: 1.0.0\n"
+            "版本: 1.0.1\n"
             "作者: 哈雅 (工号: 263321)\n\n"
             "一个用于监控 Claude Code 会话和 TodoWrite 任务的 Mac 应用"
         )
