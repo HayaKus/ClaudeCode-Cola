@@ -46,16 +46,6 @@ Thumbs.db
 .claude/projects/
 .claude/cache/
 
-# Large media files (unless intentionally versioned)
-*.jpg
-*.jpeg
-*.gif
-*.bmp
-*.tiff
-*.svg
-*.ico
-*.png
-
 # Specific images that are part of documentation (intentionally versioned)
 !large.jpg
 !mini.jpg
