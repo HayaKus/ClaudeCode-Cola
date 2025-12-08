@@ -1,5 +1,5 @@
 """
-Claude Code 会话监控器
+Qoder 会话监控器
 """
 import json
 from pathlib import Path
@@ -12,30 +12,29 @@ from src.data.models import Session, TodoItem
 from src.utils.logger import logger
 
 
-class ClaudeSessionMonitor(BaseSessionMonitor):
-    """Claude Code 会话监控器"""
+class QoderSessionMonitor(BaseSessionMonitor):
+    """Qoder 会话监控器"""
 
     def __init__(self, projects_dir: Path):
-        super().__init__(projects_dir, source_type="claude")
+        super().__init__(projects_dir, source_type="qoder")
 
     def parse_todos(self, session_id: str, file_path: Path) -> List[TodoItem]:
-        """解析 Claude Code 的 todos"""
-        return TodoParser.parse_claude_todos(file_path)
+        """解析 Qoder 的 todos（从独立的 json 文件）"""
+        return TodoParser.parse_qoder_todos(session_id)
 
     def parse_session_file(self, file_path: Path) -> Session:
         """
-        解析 Claude Code 会话文件
+        解析 Qoder 会话文件
 
-        关键逻辑：
-        1. 跳过 agent- 开头的会话
-        2. 跳过路径层级不足的会话
-        3. 解析时间戳（ISO 8601 格式）
-        4. 使用 TodoParser 解析 todos
-        5. 标记 source_type 为 "claude"
+        关键差异：
+        1. 时间戳字段为 created_at/updated_at（毫秒级 Unix 时间戳）
+        2. 需要除以 1000 转换为秒级时间戳
+        3. Todos 从独立文件解析
+        4. 标记 source_type 为 "qoder"
         """
         session_id = file_path.stem
 
-        # 过滤条件
+        # 过滤条件（与 Claude 相同）
         if session_id.startswith('agent-'):
             logger.debug(f"跳过 agent- 会话: {session_id}")
             return None
@@ -56,17 +55,17 @@ class ClaudeSessionMonitor(BaseSessionMonitor):
                     try:
                         data = json.loads(line.strip())
 
-                        # 解析时间戳（ISO 8601 格式）
-                        if 'ts' in data:
-                            ts = datetime.fromisoformat(data['ts'])
+                        # 解析时间戳（毫秒级 Unix 时间戳）
+                        if 'created_at' in data:
+                            ts = datetime.fromtimestamp(data['created_at'] / 1000)  # 关键：除以1000
                             if not start_time:
                                 start_time = ts
                             last_activity = ts
 
                         # 统计消息
-                        if 'message' in data:
+                        if 'role' in data:
                             message_count += 1
-                            last_message = data['message']
+                            last_message = str(data)
 
                     except json.JSONDecodeError:
                         continue
@@ -90,7 +89,9 @@ class ClaudeSessionMonitor(BaseSessionMonitor):
                 project_display_name = '/' + dir_name.lstrip('-').replace('-', '/')
 
             custom_name = self.session_names.get(session_id, "")
-            todos = self.parse_todos(session_id, file_path)
+            logger.info(f"🔍 正在解析 Qoder 会话 todos: {session_id}")
+            todos = self.parse_todos(session_id, file_path)  # 从独立文件解析
+            logger.info(f"📊 Qoder 会话 {session_id} 解析到 {len(todos)} 个 todos")
 
             session = Session(
                 session_id=session_id,
@@ -105,15 +106,11 @@ class ClaudeSessionMonitor(BaseSessionMonitor):
                 message_count=message_count,
                 last_message=last_message,
                 file_path=str(file_path),
-                source_type="claude"  # 关键：标记来源
+                source_type="qoder"  # 关键：标记来源
             )
 
             return session
 
         except Exception as e:
-            logger.error(f"读取 Claude Code 会话文件失败 {file_path}: {e}")
+            logger.error(f"读取 Qoder 会话文件失败 {file_path}: {e}")
             return None
-
-
-# 保持向后兼容
-SessionMonitor = ClaudeSessionMonitor

@@ -43,8 +43,8 @@ class TodoItem:
 
 
 @dataclass
-class ClaudeSession:
-    """Claude Code会话"""
+class Session:
+    """AI 会话（支持 Claude Code 和 Qoder）"""
     session_id: str
     project_path: str
     project_name: str
@@ -57,6 +57,7 @@ class ClaudeSession:
     message_count: int = 0
     last_message: str = ""
     file_path: str = ""
+    source_type: str = "claude"  # 新增字段："claude" 或 "qoder"
 
     @property
     def duration(self) -> str:
@@ -83,8 +84,37 @@ class ClaudeSession:
             return "无任务"
         completed = sum(1 for t in self.todos if t.is_completed)
         total = len(self.todos)
-        # 格式: [最后任务状态图标 完成数/总数] 最后任务内容
-        return f"[{self.todos[-1].status_icon} {completed}/{total}] {self.todos[-1].content}"
+
+        # 确定整体进度图标
+        if completed == total:
+            progress_icon = "✅"  # 全部完成
+        elif any(t.status == TodoStatus.IN_PROGRESS for t in self.todos):
+            progress_icon = "🔄"  # 有进行中的任务
+        elif completed > 0:
+            progress_icon = "⏳"  # 部分完成
+        else:
+            progress_icon = "⏳"  # 未开始
+
+        # 找到当前最相关的任务：优先显示进行中的，其次是第一个待完成的
+        current_task = None
+        for todo in self.todos:
+            if todo.status == TodoStatus.IN_PROGRESS:
+                current_task = todo
+                break
+
+        if not current_task:
+            # 没有进行中的任务，找第一个待完成的
+            for todo in self.todos:
+                if not todo.is_completed:
+                    current_task = todo
+                    break
+
+        # 如果全部完成，显示最后一个任务
+        if not current_task and self.todos:
+            current_task = self.todos[-1]
+
+        task_content = current_task.content if current_task else ""
+        return f"[{progress_icon} {completed}/{total}] {task_content}"
 
     @property
     def progress_percentage(self) -> int:
@@ -122,3 +152,7 @@ class ClaudeSession:
         completed = sum(1 for t in self.todos if t.is_completed)
         total = len(self.todos)
         return f"{self.status_icon} {self.project_name} ({completed}/{total})"
+
+
+# 保持向后兼容
+ClaudeSession = Session

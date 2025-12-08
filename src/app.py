@@ -7,7 +7,7 @@ from PyQt6.QtCore import QTimer, Qt
 
 from src.ui.main_window import MainWindow
 from src.ui.system_tray import SystemTray
-from src.core.session_monitor import SessionMonitor
+from src.core.multi_source_monitor import MultiSourceMonitor
 from src.data.config import Config
 from src.utils.logger import logger
 from PyQt6.QtGui import QShortcut, QKeySequence
@@ -29,9 +29,8 @@ class ColaApp:
         # 创建系统托盘
         self.system_tray = SystemTray(parent=self.main_window)
 
-        # 创建会话监控器
-        projects_dir = self.config.get_projects_dir()
-        self.session_monitor = SessionMonitor(projects_dir=projects_dir)
+        # 创建会话监控器（多源：Claude Code + Qoder）
+        self.session_monitor = MultiSourceMonitor()
 
         # 设置连接
         self.setup_connections()
@@ -79,13 +78,13 @@ class ColaApp:
     def on_refresh(self):
         """刷新数据"""
         logger.info("手动刷新数据...")
-        self.session_monitor.scan_sessions()
+        self.session_monitor.scan_all_sessions()
 
     def on_timer_refresh(self):
         """定时刷新"""
         if self.config.auto_refresh:
-            logger.debug("自动刷新数据...")
-            self.session_monitor.scan_sessions()
+            logger.info("🔄 自动刷新数据...")
+            self.session_monitor.scan_all_sessions()
 
     def on_sessions_updated(self, sessions):
         """会话数据更新"""
@@ -136,11 +135,12 @@ class ColaApp:
         with open(config_file, 'w', encoding='utf-8') as f:
             json.dump(list(pinned_sessions), f, ensure_ascii=False, indent=2)
         
-        # 重新加载标记的会话列表到监控器
-        self.session_monitor.load_pinned_sessions()
-        
+        # 重新加载标记的会话列表到所有监控器
+        self.session_monitor.claude_monitor.load_pinned_sessions()
+        self.session_monitor.qoder_monitor.load_pinned_sessions()
+
         # 刷新会话列表
-        self.session_monitor.scan_sessions()
+        self.session_monitor.scan_all_sessions()
 
     def on_session_renamed(self, session_id: str, new_name: str):
         """处理会话重命名"""
@@ -177,11 +177,12 @@ class ColaApp:
         with open(config_file, 'w', encoding='utf-8') as f:
             json.dump(session_names, f, ensure_ascii=False, indent=2)
         
-        # 重新加载自定义名称到监控器
-        self.session_monitor.load_session_names()
-        
+        # 重新加载自定义名称到所有监控器
+        self.session_monitor.claude_monitor.load_session_names()
+        self.session_monitor.qoder_monitor.load_session_names()
+
         # 刷新会话列表
-        self.session_monitor.scan_sessions()
+        self.session_monitor.scan_all_sessions()
 
     def quit(self):
         """退出应用"""

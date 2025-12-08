@@ -10,9 +10,9 @@ from PyQt6.QtWidgets import (
     QTableWidget, QTableWidgetItem, QHeaderView, QFrame
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QSize
-from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtGui import QAction, QIcon, QPixmap
 
-from src.data.models import ClaudeSession, TodoStatus
+from src.data.models import Session, TodoStatus
 from src.data.config import Config
 from src.utils.logger import logger
 
@@ -29,11 +29,34 @@ class MainWindow(QMainWindow):
     def __init__(self, config: Config):
         super().__init__()
         self.config = config
-        self.sessions: List[ClaudeSession] = []
-        self.current_session: Optional[ClaudeSession] = None
+        self.sessions: List[Session] = []
+        self.current_session: Optional[Session] = None
+
+        # 加载来源图标
+        self.load_source_icons()
 
         self.init_ui()
         self.restore_state()
+
+    def load_source_icons(self):
+        """加载 Claude Code 和 Qoder 的图标"""
+        try:
+            # 获取图标路径
+            icon_dir = Path(__file__).parent.parent.parent / "pic" / "icon"
+
+            claude_icon_path = icon_dir / "claude_code_icon.png"
+            qoder_icon_path = icon_dir / "qoder.png"
+
+            # 加载图标并缩放到合适大小
+            self.claude_icon = QIcon(str(claude_icon_path))
+            self.qoder_icon = QIcon(str(qoder_icon_path))
+
+            logger.info(f"成功加载来源图标: {icon_dir}")
+        except Exception as e:
+            logger.error(f"加载来源图标失败: {e}")
+            # 如果加载失败,使用默认图标
+            self.claude_icon = QIcon()
+            self.qoder_icon = QIcon()
 
     def init_ui(self):
         """初始化UI"""
@@ -213,23 +236,28 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(container)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        # 表格
+        # 表格（新增来源列）
         self.sessions_table = QTableWidget()
-        self.sessions_table.setColumnCount(5)
-        self.sessions_table.setHorizontalHeaderLabels(["状态", "项目", "位置", "TodoWrite进度", "会话ID"])
+        self.sessions_table.setColumnCount(6)
+        self.sessions_table.setHorizontalHeaderLabels(["状态", "来源", "项目", "位置", "TodoWrite进度", "会话ID"])
+
+        # 设置图标大小
+        self.sessions_table.setIconSize(QSize(24, 24))
 
         # 设置列宽
         header = self.sessions_table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
         header.resizeSection(0, 80)  # 状态图标列
-        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
-        header.resizeSection(1, 200)  # 项目名称列
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)
+        header.resizeSection(1, 60)  # 来源图标列（图标不需要太宽）
         header.setSectionResizeMode(2, QHeaderView.ResizeMode.Interactive)
-        header.resizeSection(2, 250)  # 位置列
-        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)  # TodoWrite进度列
-        
+        header.resizeSection(2, 180)  # 项目名称列
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Interactive)
+        header.resizeSection(3, 220)  # 位置列
+        header.setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)  # TodoWrite进度列
+
         # 隐藏会话ID列
-        self.sessions_table.setColumnHidden(4, True)
+        self.sessions_table.setColumnHidden(5, True)
 
         # 垂直表头
         self.sessions_table.verticalHeader().setVisible(False)
@@ -377,7 +405,7 @@ class MainWindow(QMainWindow):
             }
         """)
 
-    def update_sessions(self, sessions: List[ClaudeSession]):
+    def update_sessions(self, sessions: List[Session]):
         """更新会话列表"""
         self.sessions = sessions
         self.refresh_sessions_display()
@@ -412,26 +440,37 @@ class MainWindow(QMainWindow):
             status_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             self.sessions_table.setItem(row, 0, status_item)
 
-            # 列1: 项目名称（自定义名称或默认为空）
+            # 列1: 来源标识（使用图标）
+            source_item = QTableWidgetItem()
+            if session.source_type == "claude":
+                source_item.setIcon(self.claude_icon)
+                source_item.setToolTip("Claude Code")
+            else:
+                source_item.setIcon(self.qoder_icon)
+                source_item.setToolTip("Qoder CLI")
+            source_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.sessions_table.setItem(row, 1, source_item)
+
+            # 列2: 项目名称（自定义名称或默认为空）
             custom_name = session.custom_name if session.custom_name else ""
             name_item = QTableWidgetItem(custom_name)
-            self.sessions_table.setItem(row, 1, name_item)
+            self.sessions_table.setItem(row, 2, name_item)
 
-            # 列2: 位置（原项目路径）
+            # 列3: 位置（原项目路径）
             location_item = QTableWidgetItem(session.project_name)
-            self.sessions_table.setItem(row, 2, location_item)
+            self.sessions_table.setItem(row, 3, location_item)
 
-            # 列3: TodoWrite进度（直接使用格式化字符串）
+            # 列4: TodoWrite进度（直接使用格式化字符串）
             progress_text = session.todo_progress
             progress_item = QTableWidgetItem(progress_text)
-            self.sessions_table.setItem(row, 3, progress_item)
+            self.sessions_table.setItem(row, 4, progress_item)
 
-            # 列4: 会话ID（统一显示前20个字符）
+            # 列5: 会话ID（统一显示前20个字符）
             session_id_display = session.session_id[:20] + "..." if len(session.session_id) > 20 else session.session_id
             id_item = QTableWidgetItem(session_id_display)
             id_item.setFont(self.sessions_table.font())
             id_item.setToolTip(session.session_id)  # 完整ID显示在tooltip中
-            self.sessions_table.setItem(row, 4, id_item)
+            self.sessions_table.setItem(row, 5, id_item)
 
             # 设置行高
             self.sessions_table.setRowHeight(row, 40)
@@ -441,7 +480,7 @@ class MainWindow(QMainWindow):
 
         logger.info(f"刷新会话表格: 扫描 {len(self.sessions)} 个会话，显示 {len(sorted_sessions)} 个（活跃/标记）")
 
-    def update_stats(self, displayed_sessions: List[ClaudeSession] = None):
+    def update_stats(self, displayed_sessions: List[Session] = None):
         """更新统计面板"""
         # 使用过滤后的会话列表进行统计
         sessions_to_count = displayed_sessions if displayed_sessions is not None else self.sessions
@@ -460,7 +499,7 @@ class MainWindow(QMainWindow):
         self.stats_todos.findChild(QLabel, "value").setText(str(todo_projects))
         self.stats_pending.findChild(QLabel, "value").setText(str(pending_todos))
 
-    def update_todos_summary(self, displayed_sessions: List[ClaudeSession] = None):
+    def update_todos_summary(self, displayed_sessions: List[Session] = None):
         """更新TodoWrite汇总面板"""
         # 使用过滤后的会话列表进行统计
         sessions_to_count = displayed_sessions if displayed_sessions is not None else self.sessions
@@ -613,7 +652,7 @@ class MainWindow(QMainWindow):
         clipboard.setText(session_id)
         logger.info(f"已复制会话ID到剪贴板: {session_id}")
     
-    def show_todo_details(self, session: ClaudeSession):
+    def show_todo_details(self, session: Session):
         """显示TodoWrite详情对话框"""
         from PyQt6.QtWidgets import QDialog, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout
         

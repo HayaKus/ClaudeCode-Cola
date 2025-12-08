@@ -10,7 +10,10 @@ APP_AUTHOR_ID = "263321"
 
 # 默认配置
 DEFAULT_REFRESH_INTERVAL = 5  # 秒
-DEFAULT_PROJECTS_DIR = "~/.claude/projects"
+DEFAULT_PROJECTS_DIR = "~/.claude/projects"  # 保持兼容
+DEFAULT_CLAUDE_PROJECTS_DIR = "~/.claude/projects"
+DEFAULT_QODER_PROJECTS_DIR = "~/.qoder/projects"
+DEFAULT_QODER_TODOS_DIR = "~/.qoder/todos"
 
 # UI 常量
 MIN_WINDOW_WIDTH = 800
