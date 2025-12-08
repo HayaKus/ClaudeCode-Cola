@@ -16,7 +16,7 @@ if [ ! -d "dist/ClaudeCode-Cola.app" ]; then
 fi
 
 # 版本号
-VERSION="1.0.1"
+VERSION="1.0.2"
 DMG_NAME="ClaudeCode-Cola-${VERSION}.dmg"
 
 # 清理旧的 DMG
