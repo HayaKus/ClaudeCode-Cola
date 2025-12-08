@@ -10,6 +10,7 @@ from src.core.base_monitor import BaseSessionMonitor
 from src.core.todo_parser import TodoParser
 from src.data.models import Session, TodoItem
 from src.utils.logger import logger
+from src.utils.path_decoder import decode_encoded_dirname
 
 
 class ClaudeSessionMonitor(BaseSessionMonitor):
@@ -81,13 +82,15 @@ class ClaudeSessionMonitor(BaseSessionMonitor):
             is_active = self.check_session_active(file_path)
             is_pinned = session_id in self.pinned_sessions
 
-            # 提取项目名称
+            # 提取项目名称 - 使用改进的解码方法
             try:
                 relative_path = file_path.parent.relative_to(self.projects_dir)
-                project_display_name = '/' + str(relative_path).lstrip('-').replace('-', '/')
+                # 使用改进的解码方法,通过文件系统验证来正确还原路径
+                project_display_name = decode_encoded_dirname(str(relative_path))
             except ValueError:
                 dir_name = file_path.parent.name
-                project_display_name = '/' + dir_name.lstrip('-').replace('-', '/')
+                # 使用改进的解码方法
+                project_display_name = decode_encoded_dirname(dir_name)
 
             custom_name = self.session_names.get(session_id, "")
             todos = self.parse_todos(session_id, file_path)

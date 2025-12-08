@@ -236,9 +236,9 @@ class TrayPopup(QWidget):
             font-weight: 600;
             color: #1F2937;
         """)
-        # 限制长度
+        # 限制长度 - 路径过长时省略前面部分
         if len(display_name) > 30:
-            name.setText(display_name[:30] + "...")
+            name.setText("..." + display_name[-30:])
             name.setToolTip(display_name)
         row1.addWidget(name)
         row1.addStretch()

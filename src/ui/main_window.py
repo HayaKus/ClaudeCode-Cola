@@ -15,6 +15,7 @@ from PyQt6.QtGui import QAction, QIcon, QPixmap
 from src.data.models import Session, TodoStatus
 from src.data.config import Config
 from src.utils.logger import logger
+from src.ui.path_delegate import PathItemDelegate
 
 
 class MainWindow(QMainWindow):
@@ -258,6 +259,10 @@ class MainWindow(QMainWindow):
 
         # 隐藏会话ID列
         self.sessions_table.setColumnHidden(5, True)
+
+        # 为位置列(列3)设置自定义委托,使路径从前面省略
+        path_delegate = PathItemDelegate(self.sessions_table)
+        self.sessions_table.setItemDelegateForColumn(3, path_delegate)
 
         # 垂直表头
         self.sessions_table.verticalHeader().setVisible(False)
