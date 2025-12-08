@@ -82,5 +82,5 @@ dist/dmg_temp/
 *.egg-info/
 .eggs/
 
-# Allow DMG files for distribution
-!dist/*.dmg
+## Allow DMG files for distribution
+#!dist/*.dmg
