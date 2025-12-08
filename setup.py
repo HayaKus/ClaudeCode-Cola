@@ -13,8 +13,8 @@ OPTIONS = {
         'CFBundleDisplayName': 'ClaudeCode-Cola',
         'CFBundleGetInfoString': "Monitor Claude Code sessions and TodoWrite tasks",
         'CFBundleIdentifier': 'com.haya.claudecode-cola',
-        'CFBundleVersion': '1.0.1',
-        'CFBundleShortVersionString': '1.0.1',
+        'CFBundleVersion': '1.0.2',
+        'CFBundleShortVersionString': '1.0.2',
         'NSHumanReadableCopyright': 'Copyright © 2024 Haya. All rights reserved.',
         'LSMinimumSystemVersion': '10.14.0',
         'LSUIElement': False,  # 显示在Dock中

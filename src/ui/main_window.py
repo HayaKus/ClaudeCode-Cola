@@ -156,7 +156,7 @@ class MainWindow(QMainWindow):
         layout.addStretch()
         
         # 添加版本号标签（移到最右边）
-        version = QLabel("v1.0.1")
+        version = QLabel("v1.0.2")
         version.setStyleSheet("""
             color: white;
             font-size: 13px;
@@ -736,7 +736,7 @@ class MainWindow(QMainWindow):
             self,
             "关于 ClaudeCode-Cola",
             "ClaudeCode-Cola 🥤\n\n"
-            "版本: 1.0.1\n"
+            "版本: 1.0.2\n"
             "作者: 哈雅 (工号: 263321)\n\n"
             "一个用于监控 Claude Code 会话和 TodoWrite 任务的 Mac 应用"
         )
