@@ -4,7 +4,7 @@
 
 # 应用信息
 APP_NAME = "ClaudeCode-Cola"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0.3"
 APP_AUTHOR = "哈雅"
 APP_AUTHOR_ID = "263321"
 
