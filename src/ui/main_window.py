@@ -42,8 +42,21 @@ class MainWindow(QMainWindow):
     def load_source_icons(self):
         """加载 Claude Code 和 Qoder 的图标"""
         try:
-            # 获取图标路径
-            icon_dir = Path(__file__).parent.parent.parent / "pic" / "icon"
+            import sys
+            import os
+
+            # 判断是否在打包环境中运行
+            if getattr(sys, 'frozen', False):
+                # 打包后的环境，使用 Resources 目录
+                if sys.platform == 'darwin':
+                    # macOS .app bundle
+                    bundle_dir = Path(sys._MEIPASS) if hasattr(sys, '_MEIPASS') else Path(sys.executable).parent.parent / "Resources"
+                    icon_dir = bundle_dir / "pic" / "icon"
+                else:
+                    icon_dir = Path(sys.executable).parent / "pic" / "icon"
+            else:
+                # 开发环境，使用相对路径
+                icon_dir = Path(__file__).parent.parent.parent / "pic" / "icon"
 
             claude_icon_path = icon_dir / "claude_code_icon.png"
             qoder_icon_path = icon_dir / "qoder.png"
@@ -53,6 +66,8 @@ class MainWindow(QMainWindow):
             self.qoder_icon = QIcon(str(qoder_icon_path))
 
             logger.info(f"成功加载来源图标: {icon_dir}")
+            logger.info(f"Claude 图标存在: {claude_icon_path.exists()}")
+            logger.info(f"Qoder 图标存在: {qoder_icon_path.exists()}")
         except Exception as e:
             logger.error(f"加载来源图标失败: {e}")
             # 如果加载失败,使用默认图标
@@ -156,7 +171,7 @@ class MainWindow(QMainWindow):
         layout.addStretch()
         
         # 添加版本号标签（移到最右边）
-        version = QLabel("v1.0.2")
+        version = QLabel("v1.0.3")
         version.setStyleSheet("""
             color: white;
             font-size: 13px;
@@ -736,7 +751,7 @@ class MainWindow(QMainWindow):
             self,
             "关于 ClaudeCode-Cola",
             "ClaudeCode-Cola 🥤\n\n"
-            "版本: 1.0.2\n"
+            "版本: 1.0.3\n"
             "作者: 哈雅 (工号: 263321)\n\n"
             "一个用于监控 Claude Code 会话和 TodoWrite 任务的 Mac 应用"
         )

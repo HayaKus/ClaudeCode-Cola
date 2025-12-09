@@ -4,7 +4,9 @@ ClaudeCode-Cola py2app 打包配置
 from setuptools import setup
 
 APP = ['src/main.py']
-DATA_FILES = []
+DATA_FILES = [
+    ('pic/icon', ['pic/icon/claude_code_icon.png', 'pic/icon/qoder.png'])
+]
 OPTIONS = {
     'argv_emulation': False,
     'iconfile': 'resources/icons/app_icon.icns',  # 应用图标
@@ -13,8 +15,8 @@ OPTIONS = {
         'CFBundleDisplayName': 'ClaudeCode-Cola',
         'CFBundleGetInfoString': "Monitor Claude Code sessions and TodoWrite tasks",
         'CFBundleIdentifier': 'com.haya.claudecode-cola',
-        'CFBundleVersion': '1.0.2',
-        'CFBundleShortVersionString': '1.0.2',
+        'CFBundleVersion': '1.0.3',
+        'CFBundleShortVersionString': '1.0.3',
         'NSHumanReadableCopyright': 'Copyright © 2024 Haya. All rights reserved.',
         'LSMinimumSystemVersion': '10.14.0',
         'LSUIElement': False,  # 显示在Dock中
